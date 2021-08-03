@@ -2,6 +2,10 @@ const textLabel = document.getElementById("prompt-box");
 const container = document.getElementById("container");
 const resultContainer = document.getElementById("result-container");
 const buttonContainer = document.getElementById("button-container");
+const stats = {
+  correct: 0,
+  incorrect: 0,
+};
 
 console.log("loading still");
 
@@ -15,7 +19,7 @@ let currState = 0;
 const question = {
   prompt: "What is the capital of France?",
   correct: "Paris",
-  answers: ["Lyon", "Marseille", "Nice", "Nantes", "Paris"],
+  answers: ["Lyon", "Marseille", "Nice", "Paris"],
 };
 
 questions.push(question);
@@ -50,18 +54,31 @@ function promptQuestion() {
     document.createElement("button"),
     document.createElement("button"),
     document.createElement("button"),
-    document.createElement("button"),
   ];
   for (let i = 0; i < answerButtons.length; i++) {
     answerButtons[i].textContent = thisQuestion.answers[i];
-    buttonContainer.appendChild(answerButtons[i]);
     answerButtons[i].addEventListener("click", function (event) {
-      resultContainer.innerHTML =
-        event.target.textContent === thisQuestion.correct
-          ? "<span class='correct'>Correct!</span>"
-          : "<span class='incorrect'>Incorrect</span>";
+      handleAnswer(event.target.textContent === thisQuestion.correct);
       promptQuestion();
     });
+  }
+
+  function handleAnswer(correct) {
+    if (correct)
+      resultContainer.innerHTML = "<span class='correct'>Correct!</span>";
+    else resultContainer.innerHTML = "<span class='incorrect'>Incorrect</span>";
+  }
+
+  shuffleArray(answerButtons);
+  for (let i = 0; i < answerButtons.length; i++) {
+    buttonContainer.appendChild(answerButtons[i]);
+  }
+}
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
 }
 
@@ -75,14 +92,15 @@ function buildResultsRoom() {
   buttonContainer.appendChild(button);
 }
 
+// Clears all buttons from the buttonContainer
 function clearButtons() {
   const childList = buttonContainer.getElementsByTagName("button");
-  // Go backwards so mutating the array doesn't affect the loop
   for (let i = childList.length - 1; i >= 0; i--) {
     buttonContainer.removeChild(childList[i]);
   }
 }
 
+// Helper functions below here mostly
 function nextRoom() {
   updateState(1);
 }
