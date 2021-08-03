@@ -6,35 +6,48 @@ const timerContainer = document.getElementById("timer-container");
 const stats = {
   correct: 0,
   incorrect: 0,
+  timeLeft: 0,
 };
-const startTime = 1;
+const startTime = 30;
 let timeLeft = startTime;
-
-console.log("loading still");
 
 // This file is going to be a behemoth
 
 // Page states: Start, Game, Results
 const states = ["START", "GAME", "RESULTS"];
-const questions = [];
 let currState = 0;
 
-const question = {
-  prompt: "What is the capital of France?",
-  correct: "Paris",
-  answers: ["Lyon", "Marseille", "Nice", "Paris"],
-};
+const questions = [];
 
-questions.push(question);
-
-init();
+buildStartRoom();
 
 // Display a start button
 function init() {
-  buildStartRoom();
+  const questionList = [
+    {
+      prompt: "Which option will NOT create a new variable named 'foo'?",
+      correct: "array foo",
+      answers: ["var foo", "array foo", "const foo", "let foo"],
+    },
+    {
+      prompt: "Given an array of size 100, what index is the final entry?",
+      correct: "99",
+      answers: ["99", "100", "0", "array.length"],
+    },
+    {
+      prompt: "What does the O in JSON stand for?",
+      correct: "Object",
+      answers: ["Objective", "Oriented", "Object", "Ornery"],
+    },
+  ];
+  for (let i = 0; i < questionList.length; i++) {
+    questions.push(questionList[i]);
+  }
+  shuffleArray(questions);
 }
 
 function buildStartRoom() {
+  init();
   timeLeft = startTime;
   textLabel.textContent = getRoomName();
   const startButton = document.createElement("button");
@@ -65,7 +78,7 @@ function buildGameRoom() {
 
 function promptQuestion() {
   clearButtons();
-  const thisQuestion = questions[0];
+  const thisQuestion = questions.pop();
   textLabel.textContent = thisQuestion.prompt;
   const answerButtons = [
     document.createElement("button"),
@@ -99,7 +112,11 @@ function handleAnswer(correct) {
     }
     resultContainer.innerHTML = "<span class='incorrect'>Incorrect</span>";
   }
-  promptQuestion();
+  if (questions.length > 0) promptQuestion();
+  else {
+    stats.timeLeft = timeLeft;
+    nextRoom();
+  }
 }
 
 function shuffleArray(array) {
@@ -111,17 +128,44 @@ function shuffleArray(array) {
 
 function buildResultsRoom() {
   timerContainer.style.display = "none";
-  resultContainer.style.display = "none";
+  //   resultContainer.style.display = "none";
+  const prevScore = JSON.parse(localStorage.getItem("results"));
+
+  if (prevScore === null) {
+    resultContainer.textContent = "";
+  } else {
+    resultContainer.textContent = `Current Saved Score: ${prevScore.initials}: ${prevScore.score}`;
+  }
 
   const displayResults = `Results
-  Correct: ${stats.correct}
-  Incorrect: ${stats.incorrect}
-  Score: ${stats.correct - stats.incorrect}`;
+  Score: ${stats.correct - stats.incorrect}
+  Time Remaining: ${stats.timeLeft}`;
 
   const resultsBox = document.createElement("pre");
   resultsBox.textContent = displayResults;
   textLabel.textContent = "";
   textLabel.appendChild(resultsBox);
+  const form = document.createElement("form");
+  const submitButton = document.createElement("button");
+  const getName = document.createElement("input");
+  submitButton.textContent = "Overwrite Old Score";
+  getName.type = "text";
+  getName.placeholder = "Enter your initials";
+  form.appendChild(getName);
+  form.appendChild(submitButton);
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const entry = {
+      initials: getName.value,
+      score: stats.correct - stats.incorrect,
+      timeLeft: stats.timeLeft,
+    };
+    localStorage.setItem("results", JSON.stringify(entry));
+    const prevScore = JSON.parse(localStorage.getItem("results"));
+    resultContainer.textContent = `Current Saved Score: ${prevScore.initials}: ${prevScore.score} points with ${prevScore.timeLeft} seconds to spare`;
+  });
+  textLabel.appendChild(form);
+
   const button = document.createElement("button");
   button.textContent = "Restart";
   button.addEventListener("click", function () {
