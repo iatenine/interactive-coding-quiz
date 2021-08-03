@@ -60,11 +60,13 @@ function promptQuestion() {
         event.target.textContent === thisQuestion.correct
           ? "<span class='correct'>Correct!</span>"
           : "<span class='incorrect'>Incorrect</span>";
+      promptQuestion();
     });
   }
 }
 
 function buildResultsRoom() {
+  console.log("results room");
   const button = document.createElement("button");
   button.textContent = "Restart";
   button.addEventListener("click", function () {
@@ -75,8 +77,8 @@ function buildResultsRoom() {
 
 function clearButtons() {
   const childList = buttonContainer.getElementsByTagName("button");
-  for (let i = 0; i < childList.length; i++) {
-    console.log(childList[i]);
+  // Go backwards so mutating the array doesn't affect the loop
+  for (let i = childList.length - 1; i >= 0; i--) {
     buttonContainer.removeChild(childList[i]);
   }
 }
