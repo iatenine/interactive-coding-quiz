@@ -7,7 +7,7 @@ const stats = {
   correct: 0,
   incorrect: 0,
 };
-const startTime = 20;
+const startTime = 1;
 let timeLeft = startTime;
 
 console.log("loading still");
@@ -35,6 +35,7 @@ function init() {
 }
 
 function buildStartRoom() {
+  timeLeft = startTime;
   textLabel.textContent = getRoomName();
   const startButton = document.createElement("button");
   startButton.textContent = "Start";
@@ -45,6 +46,8 @@ function buildStartRoom() {
 }
 
 function buildGameRoom() {
+  timerContainer.style.display = "block";
+  resultContainer.style.display = "block";
   timerContainer.innerHTML = "Time left: " + timeLeft;
   promptQuestion();
 
@@ -52,8 +55,9 @@ function buildGameRoom() {
     timeLeft -= 1;
     if (timeLeft <= 0) {
       clearButtons();
-      buildResultsRoom();
+      timerContainer.innerHTML = "Time's up!";
       clearInterval(timer);
+      nextRoom();
     }
     timerContainer.innerHTML = "Time left: " + timeLeft;
   }, 1000);
@@ -83,9 +87,18 @@ function promptQuestion() {
 }
 
 function handleAnswer(correct) {
-  if (correct)
+  if (correct) {
+    stats.correct += 1;
     resultContainer.innerHTML = "<span class='correct'>Correct!</span>";
-  else resultContainer.innerHTML = "<span class='incorrect'>Incorrect</span>";
+  } else {
+    stats.incorrect += 1;
+    if (timeLeft > 3) {
+      timeLeft -= 3;
+    } else {
+      timeLeft = 0;
+    }
+    resultContainer.innerHTML = "<span class='incorrect'>Incorrect</span>";
+  }
   promptQuestion();
 }
 
@@ -97,7 +110,18 @@ function shuffleArray(array) {
 }
 
 function buildResultsRoom() {
-  console.log("results room");
+  timerContainer.style.display = "none";
+  resultContainer.style.display = "none";
+
+  const displayResults = `Results
+  Correct: ${stats.correct}
+  Incorrect: ${stats.incorrect}
+  Score: ${stats.correct - stats.incorrect}`;
+
+  const resultsBox = document.createElement("pre");
+  resultsBox.textContent = displayResults;
+  textLabel.textContent = "";
+  textLabel.appendChild(resultsBox);
   const button = document.createElement("button");
   button.textContent = "Restart";
   button.addEventListener("click", function () {
