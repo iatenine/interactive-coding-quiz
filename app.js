@@ -2,10 +2,13 @@ const textLabel = document.getElementById("prompt-box");
 const container = document.getElementById("container");
 const resultContainer = document.getElementById("result-container");
 const buttonContainer = document.getElementById("button-container");
+const timerContainer = document.getElementById("timer-container");
 const stats = {
   correct: 0,
   incorrect: 0,
 };
+const startTime = 20;
+let timeLeft = startTime;
 
 console.log("loading still");
 
@@ -42,7 +45,18 @@ function buildStartRoom() {
 }
 
 function buildGameRoom() {
+  timerContainer.innerHTML = "Time left: " + timeLeft;
   promptQuestion();
+
+  let timer = setInterval(function () {
+    timeLeft -= 1;
+    if (timeLeft <= 0) {
+      clearButtons();
+      buildResultsRoom();
+      clearInterval(timer);
+    }
+    timerContainer.innerHTML = "Time left: " + timeLeft;
+  }, 1000);
 }
 
 function promptQuestion() {
@@ -59,20 +73,20 @@ function promptQuestion() {
     answerButtons[i].textContent = thisQuestion.answers[i];
     answerButtons[i].addEventListener("click", function (event) {
       handleAnswer(event.target.textContent === thisQuestion.correct);
-      promptQuestion();
     });
-  }
-
-  function handleAnswer(correct) {
-    if (correct)
-      resultContainer.innerHTML = "<span class='correct'>Correct!</span>";
-    else resultContainer.innerHTML = "<span class='incorrect'>Incorrect</span>";
   }
 
   shuffleArray(answerButtons);
   for (let i = 0; i < answerButtons.length; i++) {
     buttonContainer.appendChild(answerButtons[i]);
   }
+}
+
+function handleAnswer(correct) {
+  if (correct)
+    resultContainer.innerHTML = "<span class='correct'>Correct!</span>";
+  else resultContainer.innerHTML = "<span class='incorrect'>Incorrect</span>";
+  promptQuestion();
 }
 
 function shuffleArray(array) {
