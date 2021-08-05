@@ -169,8 +169,10 @@ function buildResultsRoom() {
   const button = document.createElement("button");
   button.textContent = "Restart";
   button.addEventListener("click", function () {
+    buttonContainer.classList.add("flex");
     nextRoom();
   });
+  buttonContainer.classList.remove("flex");
   buttonContainer.appendChild(button);
 }
 
