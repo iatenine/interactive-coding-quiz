@@ -11,3 +11,13 @@ button {
   margin-bottom: 0.5rem;
   margin-top: 0.5rem;
 }
+
+input[type="text"] {
+  padding: 0.5em;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+button[type="submit"] {
+  margin-left: 1em;
+}

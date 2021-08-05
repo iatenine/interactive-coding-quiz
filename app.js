@@ -10,11 +10,16 @@ const stats = {
 };
 const startTime = 30;
 let timeLeft = startTime;
+let timer;
 
 // This file is going to be a behemoth
 
 // Page states: Start, Game, Results
 const states = ["START", "GAME", "RESULTS"];
+const instructionText = `You will have ${startTime} seconds
+to answer as many questions as possible. Wrong answers will deduct 
+time, correct answers will increase score. The game is over when 
+time reaches 0 or you have answered all questions. Click 'Start' to begin!`;
 let currState = 0;
 
 const questions = [];
@@ -49,7 +54,7 @@ function init() {
 function buildStartRoom() {
   init();
   timeLeft = startTime;
-  textLabel.textContent = getRoomName();
+  textLabel.textContent = instructionText;
   const startButton = document.createElement("button");
   startButton.textContent = "Start";
   startButton.addEventListener("click", function () {
@@ -64,12 +69,11 @@ function buildGameRoom() {
   timerContainer.innerHTML = "Time left: " + timeLeft;
   promptQuestion();
 
-  let timer = setInterval(function () {
+  timer = setInterval(function () {
     timeLeft -= 1;
     if (timeLeft <= 0) {
       clearButtons();
       timerContainer.innerHTML = "Time's up!";
-      clearInterval(timer);
       nextRoom();
     }
     timerContainer.innerHTML = "Time left: " + timeLeft;
@@ -137,9 +141,9 @@ function buildResultsRoom() {
     resultContainer.textContent = `Current Saved Score: ${prevScore.initials}: ${prevScore.score}`;
   }
 
-  const displayResults = `Results
-  Score: ${stats.correct - stats.incorrect}
-  Time Remaining: ${stats.timeLeft}`;
+  const displayResults = `Results\nScore: ${
+    stats.correct - stats.incorrect
+  }\nTime Remaining: ${stats.timeLeft}`;
 
   const resultsBox = document.createElement("pre");
   resultsBox.textContent = displayResults;
@@ -150,6 +154,7 @@ function buildResultsRoom() {
   const getName = document.createElement("input");
   submitButton.textContent = "Overwrite Old Score";
   getName.type = "text";
+  submitButton.type = "submit";
   getName.placeholder = "Enter your initials";
   form.appendChild(getName);
   form.appendChild(submitButton);
@@ -186,6 +191,7 @@ function clearButtons() {
 
 // Helper functions below here mostly
 function nextRoom() {
+  clearInterval(timer);
   updateState(1);
 }
 
